@@ -1,0 +1,4 @@
+name = "UWLinearAlgebra"
+uuid = "3bb4b476-f2d8-4479-9f01-bc35e4d67fca"
+version = "0.1.0"
+authors = ["Antonino D'Anna <anda982008@gmail.com>"]
