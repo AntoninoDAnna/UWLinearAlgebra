@@ -2,3 +2,13 @@ name = "UWLinearAlgebra"
 uuid = "3bb4b476-f2d8-4479-9f01-bc35e4d67fca"
 version = "0.1.0"
 authors = ["Antonino D'Anna <anda982008@gmail.com>"]
+
+[deps]
+ADerrors = "5e92007d-7bf1-471c-8ceb-4591b8b567a9"
+BDIO = "375f315e-f2c4-11e9-2ef9-134f02f79e27"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+
+[compat]
+ADerrors = "0.1.0"
+BDIO = "0.1.0"
+LinearAlgebra = "1.12.0"
