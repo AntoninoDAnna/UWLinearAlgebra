@@ -4,7 +4,6 @@ import LinearAlgebra as LA
 
 Base.zero(::Type{uwreal}) = uwreal(0.0)
 
-
 function iszero(a::uwreal)
     a.mean == 0.0 || return false
     uwerr(a)
@@ -29,12 +28,7 @@ ADerrors.uwreal(uw::uwreal) = uw
 Base.:^(x::uwreal, y::Integer) = Base.invoke(^, Tuple{uwreal,Number}, x, y)
 
 Base.isless(a::uwreal,b::uwreal) = Base.isless(a.mean,b.mean)
-
-function Base.copysign(x::uwreal,y::uwreal)
-    z = copysign(x.mean,y.mean)
-    z == x.mean && return copy(x)
-    return -x
-end
+Base.copysign(x::uwreal,y::uwreal) = x.mean*y.mean<0 ? -x : x
 
 function LA.norm(uw::uwreal;p::Real=2)
     res = abs(uw)
@@ -59,13 +53,43 @@ function LA.norm(itr::AbstractArray{uwreal})
 end
 
 # overloading LinearAlgebra methods
-LA.eigtype(::AbstractMatrix{uwreal}) = uwreal
-LA.eigtype(::Type{uwreal}) = uwreal
+# LA.eigtype(::AbstractMatrix{uwreal}) = uwreal
+# LA.eigtype(::Type{uwreal}) = uwreal
 LA.choltype(::AbstractMatrix{uwreal}) = uwreal
 LA.choltype(::Type{uwreal}) = uwreal
+#LA.dot()
 
+function uwidentity(n::Int64)
+    M =zeros(uwreal,n,n)
+    _one = one(uwreal)
+    @inbounds for i in axes(M,1)
+        M[i,i] = _one
+    end
+    return M
+end
 
+get_tol(tol::Real,M::AbstractMatrix{uwreal}) = tol
+get_tol(::Nothing,M::AbstractMatrix{uwreal}) =
+    eps(minimum(abs(M[i,i].mean) for i in axes(M,1)))
 
-
-
+function uweigen(M::AbstractMatrix{uwreal};
+                 tol::Union{Real,Nothing} = nothing)
+    n = size(M,1)
+    v = uwidentity(n)
+    m = LA.copy_similar(M,uwreal)
+    temp = zeros(uwreal,n,n)
+    old = zeros(uwreal,n,n)
+    done = false
+    while !done
+        old .= m
+        Q = LA.qr(m)
+        LA.mul!(m,Q.R,Q.Q)
+        _tol = get_tol(tol,m)
+        done = sum(abs(_mold.mean-_m.mean) for (_mold,_m) in zip(old,m)) < _tol
+        old .=v
+        LA.mul!(temp,v, Q.Q)
+        v.=temp
+    end
+    return LA.Eigen(LA.diag(m),v)
+end
 end # module UWLinearAlgebra
