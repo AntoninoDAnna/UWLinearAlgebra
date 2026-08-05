@@ -1,3 +1,9 @@
+"""
+        uw_wrap <:Number
+
+Wrap structure around `uwreal` number that gives support to Numbers methods
+
+"""
 mutable struct uw_wrap <:Number
     uw::uwreal
 end
@@ -51,6 +57,18 @@ uw_wrap(a::uw_wrap) = a
 unwrap(a::uw_wrap) = a.uw
 unwrap(a::AbstractArray{T}) where T = unwrap.(a)
 
+"""
+        unwrap(::uw_wrap)
+        unwrap(::T) where T
+        unwrap(::AbstractArray{T}) where T
+
+Unwraps `uw_wrap` object and returns the `uwreal`. If `unwrap` is called to a generic object it recursively enters its field and unwraps any `uw_wrap` it finds.
+
+### Warning
+
+the function is safe if called on `uw_wrap` and `AbstractArray{uw_wrap}`, On any other object it might return errors or corrupt data. Use with caution
+
+"""
 function unwrap(a::T) where T
     S = T.name.wrapper
     fields = Vector{Any}(undef, length(fieldnames(T)))

@@ -1,3 +1,21 @@
+"""
+        uweigen(M::AbstractMatrix{uwreal})
+
+Compute eigenvalues and eigenvector of `M` and return them in a `LinearAlgebra.Eigen` structure. Eigenvalues and eigenvector are computed using `value.(M)` and by calling `LineraAlgebra`'s routines. The error are then propagated
+
+In particular, the error on the eigenvalues are propagated by calling `ADerrors.root_error` with the employing the function
+```math
+       det(M-λI) = 0
+```
+and propagating the error from `M`.
+The error on the eigenvector are propagated in a similar manner as for `ADerros.root_error`, by employing the fuction
+```math
+        (M-λ_k I)v_k =0
+```
+and propagating the error from `M` and `λ`
+
+Calling `LinearAlgebrea.eigen` with an `AbstractMatrix{uwreal}` redirect to `uweigen`
+"""
 function uweigen(M::AbstractMatrix{uwreal})
     val = value.(M)
     E = LinearAlgebra.eigen(val)
