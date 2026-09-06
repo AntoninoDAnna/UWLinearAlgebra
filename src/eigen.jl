@@ -14,7 +14,7 @@ The error on the eigenvector are propagated in a similar manner as for `ADerros.
 ```
 and propagating the error from `M` and `λ`
 
-Calling `LinearAlgebrea.eigen` with an `AbstractMatrix{uwreal}` redirect to `uweigen`
+Calling `LinearAlgebre.eigen` with an `AbstractMatrix{uwreal}` redirect to `uweigen`
 """
 function uweigen(M::AbstractMatrix{uwreal})
     val = value.(M)
