@@ -1,28 +1,38 @@
-using Revise, ADerrors, UWLinearAlgebra, LinearAlgebra
+using ADerrors
+using LinearAlgebra
+using Test
+using UWLinearAlgebra
 
-M = randn(2,2) |> x-> 0.5*(x+x')
-Muw = [uwreal(randn(1000).*0.01.+m,"test") for m in M];
-M = value.(Muw)
-Euw = UWLinearAlgebra.uweigen(Muw)
-E = LinearAlgebra.eigen(M)
-
-##analythic results
-function eigenvalues(M::Matrix)
-    s = size(M,1);
-    if s==2
-        tr = M[1,1] + M[2,2]
-        det = M[1,1]*M[2,2] - M[2,1]*M[1,2]
-        D = sqrt(tr^2 - 4det)
-        return [0.5*(tr-D), 0.5*(tr+D)]
-    else
-        error("unsupported size")
-    end
+function exact_eigen(M)
+    tr = M[1,1]+M[2,2]
+    det = M[1,1]*M[2,2] - M[1,2]*M[2,1]
+    values = [0.5*(tr - sqrt(tr^2-4*det)),
+              0.5*(tr + sqrt(tr^2-4*det))]
+    vectors = similar(M)
+    vectors[1,1] = one(eltype(M))
+    vectors[2,1] = (values[1]-M[1,1])/M[1,2]
+    vectors[1,2] = one(eltype(M))
+    vectors[2,2] = (values[2]-M[1,1])/M[1,2]
+    vectors[:,1] ./=sqrt(sum(vectors[:,1].^2))
+    vectors[:,2] ./=sqrt(sum(vectors[:,2].^2))
+    return Eigen(values,vectors)
 end
 
-λ1 = eigenvalues(M)
-test = λ1 .- value.(Euw.values)
-
-λ2 = eigenvalues(Muw)
-test = λ2 .- Euw.values
-
-uwerr.(test); test
+@testset "uweigen" begin
+    A = [1.0 2.0; 3.0 4.0]
+    Auw = [uwreal(randn(10000).+a,"test") for a in A]
+    Auw = [a+(_a-a.mean) for (a,_a) in zip(Auw,A)]
+    E=eigen(A)
+    Euw = eigen(Auw)
+    Euw_ex = exact_eigen(Auw)
+    p = sortperm(Euw.values,by=value)
+    p_ex = sortperm(Euw.values,by=value)
+    diff = Euw.values[p].-Euw_ex.values[p_ex]
+    uwerr.(diff)
+    @test value.(diff) ≈ zeros(2) atol=eps()
+    @test ADerrors.err.(diff) ≈ zeros(2) atol=eps()
+    diff = Euw.vectors[:,p].^2 - Euw_ex.vectors[:,p_ex].^2
+    uwerr.(diff)
+    @test value.(diff) ≈ zeros(2,2) atol=eps()
+    @test ADerrors.err.(diff) ≈ zeros(2,2) atol=eps()
+end
