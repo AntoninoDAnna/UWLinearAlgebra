@@ -49,6 +49,3 @@ identity(M::AbstractMatrix{T}) where T = identity(T,size(M,1))
 
 LinearAlgebra.qr(M::AbstractMatrix{uwreal}) =
     unwrap(LinearAlgebra.qr(uw_wrap.(M)))
-
- LinearAlgebra.cholesky(M::AbstractMatrix{uwreal}) =
-     unwrap(LinearAlgebra.cholesky(uw_wrap.(M)))
