@@ -36,12 +36,27 @@ function propagate_error(fnew::Function, x0::AbstractVector{Float64}, data::Abst
     nx = length(x0)
     nd = length(data)
     xv = [x0;value.(data)]
-    f(x) = fnew(view(x,1:nx),view(x,nx+1:nx+nd))
+    f(x) = fnew( @view(x[1:nx]), @view(x[nx+1:end]))
     J = ForwardDiff.jacobian(f,xv)
     Jx = view(J,:,1:nx)
     Jd = view(J,:,nx+1:nx+nd)
     der = -Jx \ Jd
     return addobs(data,der,x0)
 end
+
+function propagate_error!(fnew!::Function, x0::AbstractVector{Float64}, data::AbstractVector{uwreal}, nf::Int64=length(x0))
+    nx = length(x0)
+    nd = length(data)
+    xv = [x0;value.(data)]
+    y = Vector{Float64}(undef, nf)
+    J = Matrix{Float64}(undef, nf, nx + nd)
+    f!(y,x) = fnew!(y, @view(x[1:nx]), @view(x[nx+1:end]))
+    ForwardDiff.jacobian!(J, f!, y, xv,cfg)
+    Jx = @view J[:,1:nx]
+    Jd = @view J[:,nx+1:end]
+    der = -Jx \ Jd
+    return addobs(data,der,x0)
+end
+
 
 export propagate_error
