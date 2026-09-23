@@ -23,6 +23,24 @@ function triangular_from_upper(d, n)
     return LinearAlgebra.UpperTriangular(D)
 end
 
+@inline packed_index(i, j) = j * (j - 1) ÷ 2 + i
+
+function cholesky_F!(f, x, d, n)
+    k = 1
+    @inbounds for j in 1:n
+        for i in 1:j
+            s = zero(eltype(x))
+            for r in 1:i
+                s += x[packed_index(r, i)] *
+                     x[packed_index(r, j)]
+            end
+            f[k] = d[k] - s
+            k += 1
+        end
+    end
+
+    return nothing
+end
 
 @doc raw"""
      uwcholesky(M::AbstractMatrix{uwreal})
@@ -49,14 +67,9 @@ function uwcholesky(M::AbstractMatrix{uwreal})
     idx = [(i,j) for j in 1:n for i in 1:j]
     D = [M[i,j] for (i,j) in idx]
     U = [C.U[i,j] for (i,j) in idx]
-    function F(x,d, n=n, idx = idx)
-        D = symmetric_from_upper(d,n)
-        U = triangular_from_upper(x,n)
-        res = D - U'*U
-        return [res[i,j] for (i,j) in idx]
-    end
-    res = triangular_from_upper(propagate_error(F,U,D),3)
-    return LinearAlgebra.Cholesky(res)
+    F!(y, x, d) = cholesky_F!(y, x, d, n)
+    res = propagate_error!(F!,U,D)
+    return LinearAlgebra.Cholesky(triangular_from_upper(res,n))
 end
 
 LinearAlgebra.cholesky(M::AbstractMatrix{uwreal}) =

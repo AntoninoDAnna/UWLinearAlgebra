@@ -20,7 +20,7 @@ end
     A = [1.0 0.3 0.4; 0.3 2.0 0.1; 0.4 0.1 4.0 ]
     Auw = [uwreal(randn(10000).+a,"test") for a in A]
     Auw = [a+(_a-a.mean) for (a,_a) in zip(Auw,A)]
-    for i in 1:3, j in 1:2
+    for i in axes(A,1), j in 1:i-1
         Auw[i,j] = Auw[j,i]
     end
     Cuw = uwcholesky(Auw)
