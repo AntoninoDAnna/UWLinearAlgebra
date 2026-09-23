@@ -1,4 +1,4 @@
-"""
+@doc raw"""
         uweigen(M::AbstractMatrix{uwreal})
 
 Compute eigenvalues and eigenvector of `M` and return them in a `LinearAlgebra.Eigen` structure. Eigenvalues and eigenvector are computed using `value.(M)` and by calling `LineraAlgebra`'s routines. The error are then propagated
@@ -40,7 +40,7 @@ end
 
 
 
-"""
+@doc raw"""
         eigen(M::AbstractMatrix{uwreal})
 
 Compute eigenvalues and eigenvector of `M` and return them in a `LinearAlgebra.Eigen` structure. Eigenvalues and eigenvector are computed using `value.(M)` and by calling `LineraAlgebra`'s routines. The error are then propagated
@@ -54,7 +54,7 @@ The error on the eigenvector are propagated in a similar manner as for `ADerros.
 ```math
         (M-λ_k I)v_k =0
 ```
-and propagating the error from `M` and `λ`
+and the condition $|v_k|^2 = 1$.  to propagate the error from `M` and `λ`
 
 """
 LinearAlgebra.eigen(M::AbstractMatrix{uwreal}) = uweigen(M)
