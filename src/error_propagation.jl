@@ -59,4 +59,4 @@ function propagate_error!(fnew!::Function, x0::AbstractVector{Float64}, data::Ab
 end
 
 
-export propagate_error
+export propagate_error, propagate_error!
