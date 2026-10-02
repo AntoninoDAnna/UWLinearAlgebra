@@ -41,7 +41,7 @@ function propagate_error(fnew::Function, x0::AbstractVector{Float64}, data::Abst
     Jx = view(J,:,1:nx)
     Jd = view(J,:,nx+1:nx+nd)
     der = -Jx \ Jd
-    return addobs(data,der,x0)
+    return ADerrors.addobs(data,der,x0)
 end
 
 function propagate_error!(fnew!::Function, x0::AbstractVector{Float64}, data::AbstractVector{uwreal}, nf::Int64=length(x0))
@@ -55,7 +55,7 @@ function propagate_error!(fnew!::Function, x0::AbstractVector{Float64}, data::Ab
     Jx = @view J[:,1:nx]
     Jd = @view J[:,nx+1:end]
     der = -Jx \ Jd
-    return addobs(data,der,x0)
+    return ADerrors.addobs(data,der,x0)
 end
 
 
