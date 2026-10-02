@@ -39,6 +39,20 @@ function uweigen(M::AbstractMatrix{uwreal})
 end
 
 
+@doc raw"""
+    uweigvals(M::AbstractMatrix{uwreal})
+
+Computes the eigenvalues of `M` and propagate the uncertainty. It relies on `LinearAlgebra.eigvals`
+"""
+function uweigvals(M::AbstractMatrix{uwreal})
+    E = LinearAlgebra.eigvals(value.(M))
+    id = UWLinearAlgebra.identity(Float64, M)
+    f(λ,d) = [LinearAlgebra.det(reshape(d,size(M))-_λ*id) for _λ in λ]
+    λ = propagate_error(f,E,reshape(M,:))
+    return λ
+end
+
+
 
 @doc raw"""
         eigen(M::AbstractMatrix{uwreal})
@@ -58,3 +72,5 @@ and the condition $|v_k|^2 = 1$.  to propagate the error from `M` and `λ`
 
 """
 LinearAlgebra.eigen(M::AbstractMatrix{uwreal}) = uweigen(M)
+
+LinearAlgebra.eigvals(M::AbstractMatrix{uwreal}) = uweigvals(M)
