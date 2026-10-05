@@ -60,9 +60,9 @@ The code uses `LinearAlgebra.cholesky` on the central values of `M`, and then pr
 Calling `LinearAlgebra.cholesky` with a `Matrix{uwreal}` redirects to `uweigen`
 
 """
-function uwcholesky(M::AbstractMatrix{uwreal})
+function uwcholesky(M::AbstractMatrix{uwreal};kw...)
     ndata = size(M,1)
-    C = LinearAlgebra.cholesky(value.(M))
+    C = LinearAlgebra.cholesky(value.(M);kw...)
     n = size(M, 1)
     idx = [(i,j) for j in 1:n for i in 1:j]
     D = [M[i,j] for (i,j) in idx]
@@ -72,8 +72,8 @@ function uwcholesky(M::AbstractMatrix{uwreal})
     return LinearAlgebra.Cholesky(triangular_from_upper(res,n))
 end
 
-LinearAlgebra.cholesky(M::AbstractMatrix{uwreal}) =
-    uwcholesky(M)
+LinearAlgebra.cholesky(M::AbstractMatrix{uwreal};kw...) =
+    uwcholesky(M;kw...)
 
 LinearAlgebra.symmetric_type(::Type{uwreal}) = uwreal
 LinearAlgebra.symmetric(uw::uwreal,::Symbol) = uw

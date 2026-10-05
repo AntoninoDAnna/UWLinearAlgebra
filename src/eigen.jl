@@ -16,9 +16,9 @@ and the condition $|v_k|^2 = 1$.  to propagate the error from `M` and `λ`
 
 Calling `LinearAlgebre.eigen` with an `AbstractMatrix{uwreal}` redirect to `uweigen`
 """
-function uweigen(M::AbstractMatrix{uwreal})
+function uweigen(M::AbstractMatrix{uwreal};kw...)
     n = size(M,1)
-    E = LinearAlgebra.eigen(value.(M))
+    E = LinearAlgebra.eigen(value.(M);kw...)
     id = UWLinearAlgebra.identity(Float64, M)
     f(λ,d) = [LinearAlgebra.det(reshape(d,n,n)-_λ*id) for _λ in λ]
     λ = propagate_error(f,E.values,reshape(M,:))
@@ -44,8 +44,8 @@ end
 
 Computes the eigenvalues of `M` and propagate the uncertainty. It relies on `LinearAlgebra.eigvals`
 """
-function uweigvals(M::AbstractMatrix{uwreal})
-    E = LinearAlgebra.eigvals(value.(M))
+function uweigvals(M::AbstractMatrix{uwreal};kw...)
+    E = LinearAlgebra.eigvals(value.(M);kw...)
     id = UWLinearAlgebra.identity(Float64, M)
     f(λ,d) = [LinearAlgebra.det(reshape(d,size(M))-_λ*id) for _λ in λ]
     λ = propagate_error(f,E,reshape(M,:))
@@ -71,6 +71,6 @@ The error on the eigenvector are propagated in a similar manner as for `ADerros.
 and the condition $|v_k|^2 = 1$.  to propagate the error from `M` and `λ`
 
 """
-LinearAlgebra.eigen(M::AbstractMatrix{uwreal}) = uweigen(M)
+LinearAlgebra.eigen(M::AbstractMatrix{uwreal};kw...) = uweigen(M;kw...)
 
-LinearAlgebra.eigvals(M::AbstractMatrix{uwreal}) = uweigvals(M)
+LinearAlgebra.eigvals(M::AbstractMatrix{uwreal};kw...) = uweigvals(M;kw...)
